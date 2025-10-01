@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&family=Montserrat:ital@0;1&family=Noto+Sans&family=Poppins&display=swap");
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  padding: 0 !important;
+  /* selection */
+}
+
+/* selection */
+::selection {
+  background: #516eff;
+  color: #000;
+}
+
+.link {
+  text-decoration: none;
+  margin: 5px;
+}
+
+.sign-in {
+  background: #ffe766;
+  padding: 8px;
+  border-radius: 50px;
+  width: 150px;
+  text-align: center;
+}
+
+.logo {
+  display: block;
+  margin: auto;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.therapy-card {
+  display: flex;
+  flex-direction: column;
+  margin: 1px;
+  padding: 10px;
+  background-color: #f7f7f7a4;
+  min-height: 150px;
+  border-left: 10px solid #516eff;
+}
+
+.MuiFormHelperText-root {
+  color: red !important;
+}
+
+.therapist-link {
+  display: flex;
+  flex-direction: column;
+  margin: 1px;
+  padding: 10px;
+  background-color: #f7f7f7a4;
+  min-height: 150px;
+  border-right: 10px solid #516eff;
+  font-weight: bolder;
+}
+
+.join {
+  text-transform: uppercase;
+  display: inline-block;
+  text-decoration: none;
+  background-color: #ffe766;
+  font-size: 30px;
+  border-radius: 40px;
+  padding: 10px 50px;
+  margin-top: 30px;
+  font-weight: bold;
+}
+
+.search {
+  font-weight: bold;
+  text-transform: uppercase;
+  display: inline-block;
+  text-decoration: none;
+  background-color: #ffe766;
+  font-size: 25px;
+  border-radius: 20px;
+  padding: 20px 20px;
+  margin-top: 30px;
+}
+
+.its-img {
+  width: 50px;
+  border-radius: 50%;
+  border: 2px solid #ffe766;
+}
+
+.join-img {
+  margin-right: 20px;
+  width: 350px;
+  height: 500px;
+  box-shadow: 0 0 10px 0px rgba(129, 126, 126, 0.397);
+  border-radius: 3px;
+  filter: opacity(0.8);
+  border-left: 10px solid #516eff;
+}
+
+.sign-img {
+  margin-right: 20px;
+  width: 560px;
+  height: 500px;
+  box-shadow: 0 0 10px 0px rgba(129, 126, 126, 0.397);
+  border-radius: 3px;
+  filter: opacity(0.8);
+  border-right: 10px solid #516eff;
+}
