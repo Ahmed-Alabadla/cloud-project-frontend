@@ -12,7 +12,7 @@ import { enqueueSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 
 import { AxiosError } from "axios";
-import { axiosInstance } from "../../utils/apis";
+import { axiosInstance } from "../../../utils/apis";
 import type { Therapist } from "./types";
 
 const RowTable = ({ therapist }: { therapist: Therapist }) => {
