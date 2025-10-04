@@ -1,11 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import Layout from "../layout/Layout";
+// import Layout from "../layout/Layout";
 import { ProtectedAdmin, ProtectedUser } from "./protected";
-import Signup from "../pages/signup";
-import Login from "../pages/login";
-import NotFound from "../pages/notFound";
-import LoginAdmin from "../pages/loginAdmin";
+
+import { AdminTherapists, Login, LoginAdmin, NotFound, Signup } from "../pages";
 
 const router = createBrowserRouter([
   // {
@@ -50,20 +48,20 @@ const router = createBrowserRouter([
     path: "admin/login",
     element: <LoginAdmin />,
   },
-  // {
-  //   path: "admin/therapists",
-  //   element: <ProtectedAdmin />,
-  //   children: [
-  //     {
-  //       path: "",
-  //       element: <AdminTherapists />,
-  //     },
-  //     {
-  //       path: "bugs",
-  //       element: <AdminBugs />,
-  //     },
-  //   ],
-  // },
+  {
+    path: "admin/therapists",
+    element: <ProtectedAdmin />,
+    children: [
+      {
+        path: "",
+        element: <AdminTherapists />,
+      },
+      // {
+      //   path: "bugs",
+      //   element: <AdminBugs />,
+      // },
+    ],
+  },
   { path: "*", element: <NotFound /> },
 ]);
 
