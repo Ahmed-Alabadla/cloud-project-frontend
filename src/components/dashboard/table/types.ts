@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   fullName: string;
   isActive: boolean;
   email: string;
