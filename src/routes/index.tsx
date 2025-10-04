@@ -1,42 +1,33 @@
 import { createBrowserRouter } from "react-router-dom";
-import {
-  LandingPage,
-  Login,
-  Signup,
-  Therapists,
-  TherapistPage,
-  LoginAdmin,
-  NotFound,
-} from "../pages";
-import Layout from "../layout/Layout";
+
+// import Layout from "../layout/Layout";
 import { ProtectedAdmin, ProtectedUser } from "./protected";
-import AdminTherapists from "../pages/adminTherapists";
-import BugReportPage from "../pages/bugsReport";
-import AdminBugs from "../pages/adminBugs";
+
+import { AdminTherapists, Login, LoginAdmin, NotFound, Signup } from "../pages";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      {
-        path: "",
-        element: <LandingPage />,
-      },
-      {
-        path: "therapists",
-        element: <Therapists />,
-      },
-      {
-        path: "therapist/:id",
-        element: <TherapistPage />,
-      },
-      {
-        path: "bug-report",
-        element: <BugReportPage />,
-      },
-    ],
-  },
+  // {
+  //   path: "/",
+  //   element: <Layout />,
+  //   children: [
+  //     {
+  //       path: "",
+  //       element: <LandingPage />,
+  //     },
+  //     {
+  //       path: "therapists",
+  //       element: <Therapists />,
+  //     },
+  //     {
+  //       path: "therapist/:id",
+  //       element: <TherapistPage />,
+  //     },
+  //     {
+  //       path: "bug-report",
+  //       element: <BugReportPage />,
+  //     },
+  //   ],
+  // },
   {
     path: "signup",
     element: (
@@ -65,10 +56,10 @@ const router = createBrowserRouter([
         path: "",
         element: <AdminTherapists />,
       },
-      {
-        path: "bugs",
-        element: <AdminBugs />,
-      },
+      // {
+      //   path: "bugs",
+      //   element: <AdminBugs />,
+      // },
     ],
   },
   { path: "*", element: <NotFound /> },
