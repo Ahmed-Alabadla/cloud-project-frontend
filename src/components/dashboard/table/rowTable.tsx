@@ -55,7 +55,7 @@ const RowTable = ({ therapist }: { therapist: Therapist }) => {
         </Grid>
       </TableCell>
       <TableCell align="center">
-        <Button variant="contained" href={therapist?.cvLink} target="blank">
+        <Button variant="contained" href={therapist?.cvLink} target="_blank">
           Download
           <FileDownloadIcon />
         </Button>
