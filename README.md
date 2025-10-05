@@ -60,8 +60,8 @@ Ntherapy is a web application that helps people to find the right therapist for 
 
 1. Clone the repo
    ```sh
-    git clone https://github.com/YasserAmro0/SW_FrontEnd_Group2.git
-   ```
+    git clone https://github.com/Ahmed-Alabadla/cloud-project-frontend.git
+    ```
 2. Install NPM packages
    ```sh
    npm install
