@@ -1,0 +1,129 @@
+.hero-section {
+  background-color: var(--body-bg-color);
+  height: 29rem;
+}
+
+.dark {
+  background-color: #181a1b;
+}
+
+@media only screen and (max-width: 600px) {
+  .hero-section {
+    height: 50rem;
+    text-align: center;
+  }
+
+  .hero-section {
+    background-color: var(--body-bg-color);
+    min-height: 32rem;
+    padding: 4rem 0 3rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dark {
+    background-color: #181a1b;
+  }
+
+  .section-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 2.5rem;
+    color: var(--primary-color, #516eff);
+    text-align: center;
+  }
+
+  .service-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(81, 110, 255, 0.08);
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .service-card:hover {
+    box-shadow: 0 8px 32px rgba(81, 110, 255, 0.18);
+    transform: translateY(-4px) scale(1.03);
+  }
+
+  .info-section {
+    background: #f7f9fc;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    padding: 2.5rem 2rem;
+    margin: 2rem 0;
+  }
+
+  .hero-headline {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: var(--primary-color, #516eff);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .hero-description {
+    font-size: 1.3rem;
+    color: #444;
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  .hero-btn {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0.8rem 2.2rem;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #516eff 60%, #7b8cff 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(81, 110, 255, 0.12);
+    border: none;
+    transition: background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+  .hero-btn:hover {
+    background: linear-gradient(90deg, #7b8cff 60%, #516eff 100%);
+    box-shadow: 0 4px 16px rgba(81, 110, 255, 0.18);
+  }
+
+  @media only screen and (max-width: 900px) {
+    .hero-section {
+      min-height: 24rem;
+      padding: 2rem 0 2rem 0;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+    }
+
+    .hero-headline {
+      font-size: 2.2rem;
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    .hero-section {
+      min-height: 18rem;
+      padding: 1rem 0 1rem 0;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+
+    .hero-headline {
+      font-size: 1.3rem;
+    }
+
+    .service-card {
+      padding: 1rem 0.5rem;
+      margin: 0.5rem;
+    }
+  }
+}
