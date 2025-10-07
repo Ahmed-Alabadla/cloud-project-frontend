@@ -11,7 +11,7 @@ const ProtectedAdmin = () => {
   if (userContext?.userData?.role !== "admin") {
     return <Navigate to="/" replace />;
   }
-  return <LayoutAdmin~ />;
+  return <LayoutAdmin />;
 };
 
 const ProtectedUser = ({ children }: TypeChildren) => {
