@@ -5,5 +5,15 @@ import NotFound from "./notFound";
 import AdminTherapists from "./adminTherapists";
 import { ModelStyle } from "../components/TherapistProfile/therapistHeader/classes";
 import LandingPage from "./landingPage";
-export { Login, Signup, LoginAdmin, NotFound, AdminTherapists, ModelStyle, LandingPage };
+import AdminBugs from "./adminBugs";
 
+export {
+  Login,
+  Signup,
+  LoginAdmin,
+  NotFound,
+  AdminTherapists,
+  ModelStyle,
+  LandingPage,
+  AdminBugs,
+};
