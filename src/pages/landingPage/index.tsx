@@ -1,14 +1,19 @@
-import { useContext } from 'react';
-import { ThemeContext } from '../../context';
+import { useContext } from "react";
+import { ThemeContext } from "../../context";
 import {
-  HeroSection, OnlineMedical, Personalized, Services, Questions, World,
-} from '../../components/landingPage';
+  HeroSection,
+  OnlineMedical,
+  Personalized,
+  Services,
+  Questions,
+  World,
+} from "../../components/landingPage";
 
-const LandingPage = () => {
+export default function LandingPage() {
   const themes = useContext(ThemeContext);
 
   return (
-    <div className={themes?.themeMode === 'dark' ? 'dark' : ''}>
+    <div className={themes?.themeMode === "dark" ? "dark" : ""}>
       <HeroSection />
       <Personalized />
       <Services />
@@ -17,5 +22,4 @@ const LandingPage = () => {
       <World />
     </div>
   );
-};
-export default LandingPage;
+}
