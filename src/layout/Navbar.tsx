@@ -1,252 +1,385 @@
-import * as React from "react";
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
-import Container from "@mui/material/Container";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useState, useContext, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
-  Button,
   AppBar,
+  Avatar,
   Box,
+  Button,
+  Container,
+  IconButton,
+  Menu,
+  MenuItem,
   Toolbar,
   Typography,
-  Menu,
-  Avatar,
-  MenuItem,
-  IconButton,
+  Tooltip,
 } from "@mui/material";
-import { useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
+import {
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  AccountCircle as AccountCircleIcon,
+  Brightness4 as Brightness4Icon,
+  Brightness7 as Brightness7Icon,
+} from "@mui/icons-material";
 import { userDataContext } from "../context";
 import ThemeContext from "../context/themeContext";
 import Logo from "../assets/img/logo.png";
 
-export { ProtectedUser } from "../routes/protected";
+// Navigation configuration
+const NAVIGATION_PAGES = [
+  { title: "Home", path: "/" },
+  { title: "Therapists", path: "/therapists" },
+] as const;
 
-const pages = [
-  { title: "Home", link: "/" },
-  { title: "Therapists", link: "/therapists" },
-];
-const settings = ["Profile"];
+const DEFAULT_AVATAR = "https://2u.pw/boTFzk6";
 
+const LogoSection = () => (
+  <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+    <img
+      src={Logo}
+      alt="NTherapy Pro Logo"
+      style={{ width: "160px", height: "auto" }}
+    />
+  </Link>
+);
+
+const ThemeToggle = () => {
+  const themes = useContext(ThemeContext);
+
+  return (
+    <Tooltip
+      title={`Switch to ${
+        themes?.themeMode === "light" ? "dark" : "light"
+      } mode`}
+    >
+      <IconButton
+        aria-label="Toggle theme mode"
+        onClick={themes?.handleThemeModeSwitch}
+        color="inherit"
+        sx={{ ml: 1 }}
+      >
+        {themes?.themeMode === "light" ? (
+          <Brightness4Icon />
+        ) : (
+          <Brightness7Icon />
+        )}
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+interface MobileMenuProps {
+  anchorEl: null | HTMLElement;
+  onOpen: (event: React.MouseEvent<HTMLElement>) => void;
+  onClose: () => void;
+}
+
+const MobileMenu = ({ anchorEl, onOpen, onClose }: MobileMenuProps) => (
+  <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+    <IconButton
+      size="large"
+      aria-label="Open navigation menu"
+      aria-controls="mobile-menu-appbar"
+      aria-haspopup="true"
+      onClick={onOpen}
+      color="inherit"
+    >
+      <MenuIcon />
+    </IconButton>
+    <Menu
+      id="mobile-menu-appbar"
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left",
+      }}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      open={Boolean(anchorEl)}
+      onClose={onClose}
+      sx={{
+        display: { xs: "block", md: "none" },
+      }}
+    >
+      {NAVIGATION_PAGES.map((page) => (
+        <MenuItem key={page.title} onClick={onClose}>
+          <Link
+            to={page.path}
+            style={{
+              textDecoration: "none",
+              color: "#516EFF",
+              width: "100%",
+            }}
+          >
+            <Typography textAlign="center">{page.title}</Typography>
+          </Link>
+        </MenuItem>
+      ))}
+    </Menu>
+  </Box>
+);
+
+const DesktopMenu = ({ onClose }: { onClose: () => void }) => (
+  <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, ml: 3 }}>
+    {NAVIGATION_PAGES.map((page) => (
+      <Button
+        key={page.title}
+        component={Link}
+        to={page.path}
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          my: 2,
+          color: "#516EFF",
+          borderColor: "transparent",
+          ml: 2,
+          "&:hover": {
+            borderColor: "#516EFF",
+            backgroundColor: "rgba(81, 110, 255, 0.04)",
+          },
+        }}
+      >
+        {page.title}
+      </Button>
+    ))}
+  </Box>
+);
+
+interface UserMenuProps {
+  userData: any;
+  anchorEl: null | HTMLElement;
+  onOpen: (event: React.MouseEvent<HTMLElement>) => void;
+  onClose: () => void;
+  onLogout: () => void;
+}
+
+const UserMenu = ({
+  userData,
+  anchorEl,
+  onOpen,
+  onClose,
+  onLogout,
+}: UserMenuProps) => {
+  const userRole = userData?.role;
+  const isTherapist = userRole === "therapist";
+  const isAdmin = userRole === "admin";
+  const showMenu = isTherapist || isAdmin;
+
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Button
+        onClick={onOpen}
+        sx={{
+          p: 0,
+          textTransform: "none",
+          "&:hover": {
+            backgroundColor: "transparent",
+          },
+        }}
+      >
+        <Typography
+          sx={{
+            color: "#516EFF",
+            fontWeight: 600,
+            ml: { xs: 1, md: 2 },
+            display: { xs: "none", sm: "block" },
+          }}
+        >
+          {userData?.fullName || "User"}
+        </Typography>
+        <Avatar
+          alt={userData?.fullName || "User avatar"}
+          src={
+            userData?.profileImg
+              ? `${userData.profileImg}?timestamp=${Date.now()}`
+              : DEFAULT_AVATAR
+          }
+          sx={{ ml: 1, width: 40, height: 40 }}
+        />
+      </Button>
+
+      <Tooltip title="Logout">
+        <IconButton
+          onClick={onLogout}
+          sx={{
+            color: "#516EFF",
+            "&:hover": {
+              backgroundColor: "rgba(81, 110, 255, 0.08)",
+            },
+          }}
+          aria-label="Logout"
+        >
+          <LogoutIcon />
+        </IconButton>
+      </Tooltip>
+
+      {showMenu && (
+        <Menu
+          sx={{ mt: "45px" }}
+          id="user-menu-appbar"
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          open={Boolean(anchorEl)}
+          onClose={onClose}
+        >
+          <MenuItem onClick={onClose}>
+            {isTherapist ? (
+              <Link
+                to={`/therapist/${userData?.therapistId}`}
+                style={{
+                  textDecoration: "none",
+                  color: "#516EFF",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontWeight: 600,
+                }}
+              >
+                <AccountCircleIcon />
+                Profile
+              </Link>
+            ) : (
+              <Link
+                to="/admin/therapists"
+                style={{
+                  textDecoration: "none",
+                  color: "#516EFF",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontWeight: 600,
+                }}
+              >
+                <AccountCircleIcon />
+                Dashboard
+              </Link>
+            )}
+          </MenuItem>
+        </Menu>
+      )}
+    </Box>
+  );
+};
+
+const AuthButtons = () => (
+  <Box sx={{ display: "flex", gap: 1 }}>
+    <Button
+      component={Link}
+      to="/signup"
+      variant="outlined"
+      sx={{
+        color: "#516EFF",
+        borderColor: "#516EFF",
+        "&:hover": {
+          borderColor: "#516EFF",
+          backgroundColor: "rgba(81, 110, 255, 0.08)",
+        },
+      }}
+    >
+      Sign Up
+    </Button>
+    <Button
+      component={Link}
+      to="/login"
+      variant="contained"
+      sx={{
+        backgroundColor: "#516EFF",
+        "&:hover": {
+          backgroundColor: "#3d5acc",
+        },
+      }}
+    >
+      Sign In
+    </Button>
+  </Box>
+);
+
+// Main Navbar Component
 const Navbar = () => {
   const userData = useContext(userDataContext);
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null
-  );
   const themes = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
 
-  const handleCloseNavMenu = () => {
+  const handleOpenNavMenu = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElNav(event.currentTarget);
+    },
+    []
+  );
+
+  const handleOpenUserMenu = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElUser(event.currentTarget);
+    },
+    []
+  );
+
+  const handleCloseNavMenu = useCallback(() => {
     setAnchorElNav(null);
-  };
+  }, []);
 
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = useCallback(() => {
     setAnchorElUser(null);
-  };
-  const handleLogout = () => {
+  }, []);
+
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("access_token");
     userData?.setUserData(null);
     navigate("/");
-  };
+  }, [navigate, userData]);
+
   return (
     <AppBar
       position="static"
+      elevation={1}
       sx={{
-        backgroundColor: themes?.themeMode === "dark" ? "#181A1B" : " #F4F7FF",
+        backgroundColor: themes?.themeMode === "dark" ? "#181A1B" : "#F4F7FF",
         color: "#516EFF",
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Link to="/">
-            <img src={Logo} alt="logo" style={{ width: "160px" }} />
-          </Link>
-          <IconButton
-            aria-label="Toggle theme mode"
-            onClick={themes?.handleThemeModeSwitch}
-            color="inherit"
-          >
-            {themes?.themeMode === "light" ? (
-              <Brightness4Icon />
-            ) : (
-              <Brightness7Icon />
-            )}
-          </IconButton>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.title} onClick={handleCloseNavMenu}>
-                  <Link
-                    to={page.link}
-                    key={page.title}
-                    style={{ textDecoration: "none", color: "#516EFF" }}
-                  >
-                    <Typography textAlign="center">{page.title}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Link
-                to={page.link}
-                key={page.title}
-                style={{ textDecoration: "none", color: "#516EFF" }}
-              >
-                <Button
-                  key={page.title}
-                  variant="outlined"
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    my: 2,
-                    color: "#516EFF",
-                    display: "block",
-                    ml: 2,
-                  }}
-                >
-                  {page.title}
-                </Button>
-              </Link>
-            ))}
+        <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
+          {/* Logo and Theme Toggle */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <LogoSection />
+            <ThemeToggle />
           </Box>
 
-          <Box sx={{ display: "flex" }}>
+          {/* Mobile Menu */}
+          <MobileMenu
+            anchorEl={anchorElNav}
+            onOpen={handleOpenNavMenu}
+            onClose={handleCloseNavMenu}
+          />
+
+          {/* Desktop Menu */}
+          <DesktopMenu onClose={handleCloseNavMenu} />
+
+          {/* User Section or Auth Buttons */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             {userData?.userData ? (
-              <>
-                <Button onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Typography
-                    sx={{ color: "#516EFF", fontWeight: "bold", ml: 3 }}
-                  >
-                    {userData?.userData.fullName || "Ahmed Izz"}
-                  </Typography>
-
-                  <Avatar
-                    alt="user avatar"
-                    src={
-                      userData?.userData?.profileImg
-                        ? `${
-                            userData.userData.profileImg
-                          }?timestamp=${Date.now()}`
-                        : "https://2u.pw/boTFzk6"
-                    }
-                    sx={{ ml: 1 }}
-                  />
-                </Button>
-                <LogoutIcon
-                  onClick={handleLogout}
-                  sx={{ ml: 1, mt: 1, cursor: "pointer" }}
-                />
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/signup"
-                  style={{ textDecoration: "none", color: "white" }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{ borderColor: "primary.main", ml: 3 }}
-                  >
-                    SIGN UP
-                  </Button>
-                </Link>
-                <Link
-                  to="/login"
-                  style={{ textDecoration: "none", color: "white" }}
-                >
-                  <Button
-                    variant="contained"
-                    sx={{ borderColor: "primary.main", ml: 1 }}
-                  >
-                    SIGN IN
-                  </Button>
-                </Link>
-              </>
-            )}
-
-            {(userData?.userData?.role === "therapist" ||
-              userData?.userData?.role === "admin") && (
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
+              <UserMenu
+                userData={userData.userData}
                 anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
+                onOpen={handleOpenUserMenu}
                 onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    {userData?.userData?.role === "therapist" ? (
-                      <Link
-                        to={`/therapist/${userData?.userData?.therapistId}`}
-                        style={{ textDecoration: "none", fontWeight: "bold" }}
-                      >
-                        <Typography textAlign="center" sx={{ width: "120px" }}>
-                          <AccountCircleIcon
-                            style={{
-                              position: "absolute",
-                              top: "5",
-                              left: "22",
-                            }}
-                          />
-                          {setting}
-                        </Typography>
-                      </Link>
-                    ) : (
-                      <Link to="/admin/therapists">Dashboard</Link>
-                    )}
-                  </MenuItem>
-                ))}
-              </Menu>
+                onLogout={handleLogout}
+              />
+            ) : (
+              <AuthButtons />
             )}
           </Box>
         </Toolbar>
@@ -254,4 +387,5 @@ const Navbar = () => {
     </AppBar>
   );
 };
+
 export default Navbar;
