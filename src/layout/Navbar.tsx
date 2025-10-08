@@ -351,25 +351,32 @@ const Navbar = () => {
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-          {/* Logo and Theme Toggle */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Toolbar disableGutters>
+          {/* Left Section: Mobile Menu + Logo */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: { xs: 0, md: 0 },
+            }}
+          >
+            <MobileMenu
+              anchorEl={anchorElNav}
+              onOpen={handleOpenNavMenu}
+              onClose={handleCloseNavMenu}
+            />
             <LogoSection />
-            <ThemeToggle />
           </Box>
 
-          {/* Mobile Menu */}
-          <MobileMenu
-            anchorEl={anchorElNav}
-            onOpen={handleOpenNavMenu}
-            onClose={handleCloseNavMenu}
-          />
-
-          {/* Desktop Menu */}
+          {/* Center Section: Desktop Navigation Menu */}
           <DesktopMenu onClose={handleCloseNavMenu} />
 
-          {/* User Section or Auth Buttons */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          {/* Right Section: Theme Toggle + User Menu/Auth Buttons */}
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}
+          >
+            <ThemeToggle />
+
             {userData?.userData ? (
               <UserMenu
                 userData={userData.userData}
