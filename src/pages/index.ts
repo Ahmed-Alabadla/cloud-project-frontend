@@ -6,6 +6,8 @@ import AdminTherapists from "./adminTherapists";
 import { ModelStyle } from "../components/TherapistProfile/therapistHeader/classes";
 import LandingPage from "./landingPage";
 import AdminBugs from "./adminBugs";
+import Therapists from "./therapists";
+import TherapistPage from "./therapistProfile";
 
 export {
   Login,
@@ -16,4 +18,6 @@ export {
   ModelStyle,
   LandingPage,
   AdminBugs,
+  Therapists,
+  TherapistPage,
 };
