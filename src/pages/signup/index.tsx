@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { useSnackbar, type VariantType } from 'notistack';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import { LoadingButton } from '@mui/lab';
+import { useState, useCallback } from "react";
+import { useSnackbar, type VariantType } from "notistack";
+import {
+  Visibility,
+  VisibilityOff,
+  PersonAdd as PersonAddIcon,
+  Description as DescriptionIcon,
+  Image as ImageIcon,
+} from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
 import {
   Button,
   CssBaseline,
@@ -16,59 +19,66 @@ import {
   FormControlLabel,
   Radio,
   Typography,
-} from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
-import { useFormik } from 'formik';
-import validationSchema from './schema';
-import imageSrc from '../../assets/loginImg.jpg';
-import {
-  boxStyle, textFieldStyle, buttonStyle, gridStyle, imageStyle, fileUploadStyle,
-  errorStyle,
-} from './classes';
-import './style.css';
-import { axiosInstance } from '../../utils/apis';
-import logosrc from '../../assets/img/logo.png';
+  InputAdornment,
+  IconButton,
+  Divider,
+  Chip,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import axios, { AxiosError } from "axios";
+import { useFormik } from "formik";
+import validationSchema from "./schema";
+import imageSrc from "../../assets/loginImg.jpg";
+import { axiosInstance } from "../../utils/apis";
+import logosrc from "../../assets/img/logo.png";
 
 const Signup = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
-  const showSnackbar = (message:string, severity:VariantType) => {
-    enqueueSnackbar(message, { variant: severity });
-  };
-
-  const [userType, setUserType] = useState('user');
+  const [userType, setUserType] = useState("user");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const [cvFileName, setCvFileName] = useState('');
-  const [imageFileName, setImageFileName] = useState('');
+  const [cvFileName, setCvFileName] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
 
-  const navigate = useNavigate();
+  const showSnackbar = useCallback(
+    (message: string, severity: VariantType) => {
+      enqueueSnackbar(message, { variant: severity });
+    },
+    [enqueueSnackbar]
+  );
+
+  const handlePasswordVisibility = useCallback(() => {
+    setPasswordVisible((prev) => !prev);
+  }, []);
+
+  const handleConfirmPasswordVisibility = useCallback(() => {
+    setConfirmPasswordVisible((prev) => !prev);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
       role: userType,
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      major: '',
-      hourlyRate: '',
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      major: "",
+      hourlyRate: "",
       cv: null,
       image: null,
-      phoneNumber: '',
+      phoneNumber: "",
     },
     validationSchema,
     onSubmit: async (values) => {
       try {
-        if (userType === 'therapist') {
-          const s3ImgUploadUrlPromise = axiosInstance.get('/upload-url');
-          const s3CvUploadUrlPromise = axiosInstance.get('/upload-url');
+        if (userType === "therapist") {
+          const s3ImgUploadUrlPromise = axiosInstance.get("/upload-url");
+          const s3CvUploadUrlPromise = axiosInstance.get("/upload-url");
 
-          const [s3ImgUploadUrlResponse, s3CvUploadUrlResponse] = await Promise.all([
-            s3ImgUploadUrlPromise,
-            s3CvUploadUrlPromise,
-          ]);
+          const [s3ImgUploadUrlResponse, s3CvUploadUrlResponse] =
+            await Promise.all([s3ImgUploadUrlPromise, s3CvUploadUrlPromise]);
 
           const s3ImgUploadUrl = s3ImgUploadUrlResponse.data;
           const s3CvUploadUrl = s3CvUploadUrlResponse.data;
@@ -76,16 +86,16 @@ const Signup = () => {
           const imgUploadPromise = axios.put(s3ImgUploadUrl, values.image);
           const cvUploadPromise = axios.put(s3CvUploadUrl, values.cv, {
             headers: {
-              'Content-Type': 'application/pdf',
+              "Content-Type": "application/pdf",
             },
           });
 
           await Promise.all([imgUploadPromise, cvUploadPromise]);
 
-          const imgUrl = s3ImgUploadUrl.split('?')[0];
-          const cvUrl = s3CvUploadUrl.split('?')[0];
+          const imgUrl = s3ImgUploadUrl.split("?")[0];
+          const cvUrl = s3CvUploadUrl.split("?")[0];
 
-          await axiosInstance.post('/auth/register', {
+          await axiosInstance.post("/auth/register", {
             role: values.role,
             fullName: values.username,
             email: values.email,
@@ -96,231 +106,475 @@ const Signup = () => {
             profileImg: imgUrl,
             phoneNumber: values.phoneNumber,
           });
-          showSnackbar('Registration successful! Please Check Your Email', 'success');
-          navigate('/');
+          showSnackbar(
+            "Registration successful! Please Check Your Email",
+            "success"
+          );
+          navigate("/");
         } else {
-          await axiosInstance.post('/auth/register', {
+          await axiosInstance.post("/auth/register", {
             role: values.role,
             fullName: values.username,
             email: values.email,
             password: values.password,
           });
-          navigate('/login');
+          navigate("/login");
         }
       } catch (err) {
         const error = err as AxiosError;
-        showSnackbar(error.message, 'error');
+        showSnackbar(error.message, "error");
       }
     },
   });
-  const handleUserTypeChange = (event:React.ChangeEvent<HTMLInputElement>) => {
-    setUserType(event.target.value);
-    formik.setFieldValue('role', event.target.value);
-  };
-  const handleFileUpload = (event:React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-      if (allowedTypes.includes(file.type)) {
-        formik.setFieldValue(event.target.name, file);
-        if (event.target.name === 'cv') {
-          setCvFileName(file.name);
-        } else if (event.target.name === 'image') {
-          setImageFileName(file.name);
+  const handleUserTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setUserType(event.target.value);
+      formik.setFieldValue("role", event.target.value);
+    },
+    [formik]
+  );
+
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+        if (allowedTypes.includes(file.type)) {
+          formik.setFieldValue(event.target.name, file);
+          if (event.target.name === "cv") {
+            setCvFileName(file.name);
+          } else if (event.target.name === "image") {
+            setImageFileName(file.name);
+          }
+          showSnackbar("File uploaded successfully!", "success");
+        } else {
+          showSnackbar(
+            "Invalid file type. Please upload a PDF, JPEG, or PNG file.",
+            "error"
+          );
         }
-        showSnackbar('File uploaded successfully!', 'success');
       } else {
-        showSnackbar('Invalid file type. Please upload a PDF, JPEG, or PNG file.', 'error');
+        showSnackbar("Failed to upload file.", "error");
       }
-    } else {
-      showSnackbar('Failed to upload file.', 'error');
-    }
+    },
+    [formik, showSnackbar]
+  );
+
+  const textFieldStyle = {
+    mb: 2,
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: "#516EFF",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#516EFF",
+      },
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "#516EFF",
+    },
   };
 
   const renderAdditionalFields = () => {
-    if (userType === 'therapist') {
+    if (userType === "therapist") {
       return (
-        <>
+        <Box sx={{ mt: 2 }}>
+          <Divider sx={{ my: 3 }}>
+            <Chip
+              label="Professional Information"
+              sx={{ color: "#516EFF", fontWeight: 600 }}
+            />
+          </Divider>
+
           <TextField
+            fullWidth
             margin="normal"
             required
-            sx={textFieldStyle}
             id="major"
             name="major"
-            label="major"
+            label="Specialization / Major"
+            placeholder="e.g., Clinical Psychology, CBT"
+            value={formik.values.major}
             onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             error={formik.touched.major && Boolean(formik.errors.major)}
             helperText={formik.touched.major && formik.errors.major}
+            sx={textFieldStyle}
           />
+
           <TextField
+            fullWidth
             margin="normal"
             required
-            sx={textFieldStyle}
             id="hourlyRate"
             name="hourlyRate"
             label="Hourly Rate"
+            placeholder="Enter your hourly rate"
+            value={formik.values.hourlyRate}
             onChange={formik.handleChange}
-            error={formik.touched.hourlyRate && Boolean(formik.errors.hourlyRate)}
+            onBlur={formik.handleBlur}
+            error={
+              formik.touched.hourlyRate && Boolean(formik.errors.hourlyRate)
+            }
             helperText={formik.touched.hourlyRate && formik.errors.hourlyRate}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">$</InputAdornment>
               ),
             }}
+            sx={textFieldStyle}
           />
+
           <TextField
+            fullWidth
             margin="normal"
             required
-            sx={textFieldStyle}
             id="phoneNumber"
             name="phoneNumber"
             label="Phone Number"
+            placeholder="+1 (555) 123-4567"
+            value={formik.values.phoneNumber}
             onChange={formik.handleChange}
-            error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
+            onBlur={formik.handleBlur}
+            error={
+              formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)
+            }
             helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
+            sx={textFieldStyle}
           />
 
-          <label htmlFor="file-upload">
-            <input
-              accept=".pdf"
-              name="cv"
-              id="file-upload"
-              type="file"
-              style={{ display: 'none' }}
-              onChange={handleFileUpload}
-
-            />
-            <Button
-              variant="contained"
-              component="span"
-              style={fileUploadStyle}
+          <Box sx={{ mt: 3 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 2, color: "text.secondary", fontWeight: 600 }}
             >
-              {cvFileName || 'Upload CV'}
-            </Button>
-          </label>
-          {formik.touched.cv && formik.errors.cv && (
-          <Typography
-            sx={errorStyle}
-          >
-            {formik.errors.cv}
-          </Typography>
-          )}
+              Upload Required Documents
+            </Typography>
 
-          <label htmlFor="img-upload">
-            <input
-              accept="image/*"
-              id="img-upload"
-              name="image"
-              type="file"
-              style={{ display: 'none' }}
-              onChange={handleFileUpload}
-            />
-            <Button variant="contained" component="span" style={fileUploadStyle}>
-              {imageFileName || 'Upload Image'}
-            </Button>
-          </label>
-          {formik.touched.image && formik.errors.image && (
-          <Typography
-            sx={errorStyle}
-          >
-            {formik.errors.image}
-          </Typography>
-          )}
-        </>
+            <Box sx={{ mb: 2 }}>
+              <input
+                accept=".pdf"
+                name="cv"
+                id="cv-upload"
+                type="file"
+                style={{ display: "none" }}
+                onChange={handleFileUpload}
+              />
+              <label htmlFor="cv-upload">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  startIcon={<DescriptionIcon />}
+                  sx={{
+                    py: 1.5,
+                    borderColor: cvFileName ? "#4caf50" : "#516EFF",
+                    color: cvFileName ? "#4caf50" : "#516EFF",
+                    textTransform: "none",
+                    "&:hover": {
+                      borderColor: cvFileName ? "#45a049" : "#3d5acc",
+                      backgroundColor: cvFileName
+                        ? "rgba(76, 175, 80, 0.04)"
+                        : "rgba(81, 110, 255, 0.04)",
+                    },
+                  }}
+                >
+                  {cvFileName || "Upload CV (PDF)"}
+                </Button>
+              </label>
+              {formik.touched.cv && formik.errors.cv && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "error.main", mt: 0.5, display: "block" }}
+                >
+                  {formik.errors.cv}
+                </Typography>
+              )}
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <input
+                accept="image/*"
+                id="image-upload"
+                name="image"
+                type="file"
+                style={{ display: "none" }}
+                onChange={handleFileUpload}
+              />
+              <label htmlFor="image-upload">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  startIcon={<ImageIcon />}
+                  sx={{
+                    py: 1.5,
+                    borderColor: imageFileName ? "#4caf50" : "#516EFF",
+                    color: imageFileName ? "#4caf50" : "#516EFF",
+                    textTransform: "none",
+                    "&:hover": {
+                      borderColor: imageFileName ? "#45a049" : "#3d5acc",
+                      backgroundColor: imageFileName
+                        ? "rgba(76, 175, 80, 0.04)"
+                        : "rgba(81, 110, 255, 0.04)",
+                    },
+                  }}
+                >
+                  {imageFileName || "Upload Profile Image"}
+                </Button>
+              </label>
+              {formik.touched.image && formik.errors.image && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "error.main", mt: 0.5, display: "block" }}
+                >
+                  {formik.errors.image}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        </Box>
       );
     }
     return null;
   };
 
-  const handlePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
-  const handleConfirmPasswordVisibility = () => {
-    setConfirmPasswordVisible(!confirmPasswordVisible);
-  };
-
   return (
-    <Grid container component="main" sx={gridStyle}>
+    <Grid
+      container
+      component="main"
+      sx={{
+        height: "100vh",
+        overflow: "hidden",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      }}
+    >
       <CssBaseline />
-      <Grid style={{ height: 'fit-content', width: 'fit-content', overflow: 'hidden' }} item xs={false} md={6}>
-        <img src={imageSrc} alt="login" className="imageLogin" style={imageStyle} />
+
+      {/* Left Side - Image Section */}
+      <Grid
+        item
+        xs={false}
+        md={7}
+        sx={{
+          display: { xs: "none", md: "flex" },
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          overflow: "hidden",
+          height: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "linear-gradient(rgba(81, 110, 255, 0.1), rgba(81, 110, 255, 0.3))",
+              zIndex: 1,
+            },
+          }}
+        >
+          <img
+            src={imageSrc}
+            alt="Therapy session illustration"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </Box>
       </Grid>
+
+      {/* Right Side - Form Section */}
       <Grid
         item
         xs={12}
-        md={6}
+        md={5}
         component={Paper}
-        elevation={6}
+        elevation={0}
         square
-        style={{ height: '100vh', overflow: 'auto', overflowX: 'hidden' }}
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          backgroundColor: "background.paper",
+          height: "100vh",
+          overflow: "auto",
+          overflowX: "hidden",
+        }}
       >
-        <Box sx={{ ...boxStyle, margin: '50px 0 0', px: '0.5rem' }}>
-          <Link to="/">
-            <img src={logosrc} alt="login" style={{ width: '250px', cursor: 'pointer' }} />
-          </Link>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "480px",
+            px: { xs: 3, sm: 4, md: 6 },
+            py: { xs: 4, sm: 6 },
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Link to="/" style={{ display: "inline-block" }}>
+              <img
+                src={logosrc}
+                alt="NTherapy Pro logo"
+                style={{
+                  width: "180px",
+                  height: "auto",
+                  cursor: "pointer",
+                  transition: "transform 0.2s",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.05)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
+              />
+            </Link>
+          </Box>
 
-          <Box component="form" noValidate onSubmit={formik.handleSubmit}>
-            <RadioGroup
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
+          {/* Title */}
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                color: "text.primary",
               }}
-              aria-label="userType"
+            >
+              Create Account
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
+              Join our community and start your journey
+            </Typography>
+          </Box>
+
+          {/* User Type Selection */}
+          <Box sx={{ mb: 3 }}>
+            <RadioGroup
+              aria-label="User Type"
               name="userType"
               value={userType}
               onChange={handleUserTypeChange}
               row
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
+              }}
             >
               <FormControlLabel
-                style={{ margin: '10px' }}
                 value="user"
-                control={<Radio />}
-                label="user"
-                labelPlacement="end"
+                control={
+                  <Radio
+                    sx={{
+                      color: "#516EFF",
+                      "&.Mui-checked": { color: "#516EFF" },
+                    }}
+                  />
+                }
+                label={
+                  <Typography
+                    sx={{ fontWeight: userType === "user" ? 600 : 400 }}
+                  >
+                    User
+                  </Typography>
+                }
               />
-
               <FormControlLabel
-                style={{ margin: '10px' }}
                 value="therapist"
-                control={<Radio />}
-                label="therapist"
-                labelPlacement="end"
+                control={
+                  <Radio
+                    sx={{
+                      color: "#516EFF",
+                      "&.Mui-checked": { color: "#516EFF" },
+                    }}
+                  />
+                }
+                label={
+                  <Typography
+                    sx={{ fontWeight: userType === "therapist" ? 600 : 400 }}
+                  >
+                    Therapist
+                  </Typography>
+                }
               />
             </RadioGroup>
+          </Box>
+
+          <Divider sx={{ mb: 3 }} />
+
+          {/* Signup Form */}
+          <Box component="form" noValidate onSubmit={formik.handleSubmit}>
             <TextField
+              fullWidth
               margin="normal"
               required
-              sx={textFieldStyle}
               id="username"
               name="username"
               label="Full Name"
+              placeholder="John Doe"
+              autoComplete="name"
+              autoFocus
+              value={formik.values.username}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               error={formik.touched.username && Boolean(formik.errors.username)}
               helperText={formik.touched.username && formik.errors.username}
+              sx={textFieldStyle}
             />
+
             <TextField
+              fullWidth
               margin="normal"
               required
-              sx={textFieldStyle}
               id="email"
               name="email"
-              label="Email"
+              label="Email Address"
+              placeholder="your.email@example.com"
+              autoComplete="email"
+              value={formik.values.email}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               error={formik.touched.email && Boolean(formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
+              sx={textFieldStyle}
             />
+
             <TextField
+              fullWidth
               margin="normal"
               required
-              sx={textFieldStyle}
               id="password"
               name="password"
               label="Password"
-              type={passwordVisible ? 'text' : 'password'}
+              type={passwordVisible ? "text" : "password"}
+              autoComplete="new-password"
+              value={formik.values.password}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               error={formik.touched.password && Boolean(formik.errors.password)}
               helperText={formik.touched.password && formik.errors.password}
               InputProps={{
@@ -329,55 +583,112 @@ const Signup = () => {
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={handlePasswordVisibility}
+                      edge="end"
                     >
-                      {passwordVisible ? <Visibility /> : <VisibilityOff />}
+                      {passwordVisible ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
+              sx={textFieldStyle}
             />
+
             <TextField
+              fullWidth
               margin="normal"
               required
-              sx={textFieldStyle}
               id="confirmPassword"
               name="confirmPassword"
               label="Confirm Password"
-              type={confirmPasswordVisible ? 'text' : 'password'}
+              type={confirmPasswordVisible ? "text" : "password"}
+              autoComplete="new-password"
+              value={formik.values.confirmPassword}
               onChange={formik.handleChange}
-              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+              onBlur={formik.handleBlur}
+              error={
+                formik.touched.confirmPassword &&
+                Boolean(formik.errors.confirmPassword)
+              }
+              helperText={
+                formik.touched.confirmPassword && formik.errors.confirmPassword
+              }
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       aria-label="toggle confirm password visibility"
                       onClick={handleConfirmPasswordVisibility}
+                      edge="end"
                     >
-                      {confirmPasswordVisible ? <Visibility /> : <VisibilityOff />}
+                      {confirmPasswordVisible ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
+              sx={textFieldStyle}
             />
+
             {renderAdditionalFields()}
+
             <LoadingButton
               type="submit"
-              variant="contained"
               fullWidth
-              sx={buttonStyle}
+              size="large"
+              variant="contained"
               loading={formik.isSubmitting}
               disabled={formik.isSubmitting}
+              startIcon={<PersonAddIcon />}
+              sx={{
+                mt: 3,
+                mb: 2,
+                py: 1.5,
+                backgroundColor: "#516EFF",
+                textTransform: "none",
+                fontSize: "1rem",
+                fontWeight: 600,
+                borderRadius: 2,
+                boxShadow: "0 4px 14px 0 rgba(81, 110, 255, 0.39)",
+                "&:hover": {
+                  backgroundColor: "#3d5acc",
+                  boxShadow: "0 6px 20px rgba(81, 110, 255, 0.5)",
+                  transform: "translateY(-2px)",
+                },
+                "&:active": {
+                  transform: "translateY(0)",
+                },
+                transition: "all 0.2s ease-in-out",
+              }}
             >
-              Join us
+              Create Account
             </LoadingButton>
-            <Grid container>
-              <Grid item>
-                <Link to="/login" className="LinkSignIn">
-                  Already have an account? Sign in
+
+            {/* Sign In Link */}
+            <Box sx={{ textAlign: "center" }}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  style={{
+                    color: "#516EFF",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.textDecoration = "underline";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.textDecoration = "none";
+                  }}
+                >
+                  Sign In
                 </Link>
-              </Grid>
-            </Grid>
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Grid>
