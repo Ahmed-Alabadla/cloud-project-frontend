@@ -9,6 +9,8 @@ import {
   LoginAdmin,
   NotFound,
   Signup,
+  TherapistPage,
+  Therapists,
 } from "../pages";
 import { Layout } from "../layout";
 import BugReportPage from "../pages/bugsReport";
@@ -23,14 +25,14 @@ const router = createBrowserRouter([
         path: "",
         element: <LandingPage />,
       },
-      // {
-      //   path: "therapists",
-      //   element: <Therapists />,
-      // },
-      // {
-      //   path: "therapist/:id",
-      //   element: <TherapistPage />,
-      // },
+      {
+        path: "therapists",
+        element: <Therapists />,
+      },
+      {
+        path: "therapist/:id",
+        element: <TherapistPage />,
+      },
       {
         path: "bug-report",
         element: <BugReportPage />,
