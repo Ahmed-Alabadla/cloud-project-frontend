@@ -301,6 +301,21 @@ const AuthButtons = () => (
     >
       Sign In
     </Button>
+    <Button
+      component={Link}
+      to="/admin/login"
+      variant="outlined"
+      sx={{
+        color: "#516EFF",
+        borderColor: "#516EFF",
+        "&:hover": {
+          borderColor: "#516EFF",
+          backgroundColor: "rgba(81, 110, 255, 0.08)",
+        },
+      }}
+    >
+      Admin Login
+    </Button>
   </Box>
 );
 
